@@ -1,3 +1,5 @@
+//3499. Maximize Active Section with Trade I
+
 class Solution {
     public int maxActiveSectionsAfterTrade(String s) {
         int ones = 0;

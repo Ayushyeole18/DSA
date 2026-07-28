@@ -1,3 +1,5 @@
+// M - 3517. Smallest Palindromic Rearrangement I
+
 class Solution {
     public String smallestPalindrome(String s) {
         int[] freq = new int[26];

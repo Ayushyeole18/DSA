@@ -1,73 +1,79 @@
 //H- 3518. Smallest Palindromic Rearrangement II
 
 class Solution {
-    static final long LIMIT = 1000001;
+    static final long LIMIT = 1000000L;
 
     public String smallestPalindrome(String s, int k) {
-        int[] freq = new int[26];
+        int[] cnt = new int[26];
+        for (char c : s.toCharArray()) cnt[c - 'a']++;
 
-        for (char ch : s.toCharArray()) {
-            freq[ch - 'a']++;
-        }
-
-        char mid = 0;
         int[] half = new int[26];
-        int len = 0;
+        int halfLen = 0;
+        String mid = "";
 
         for (int i = 0; i < 26; i++) {
-            if ((freq[i] & 1) == 1) {
-                mid = (char) ('a' + i);
-            }
-            half[i] = freq[i] / 2;
-            len += half[i];
+            if ((cnt[i] & 1) == 1) mid = "" + (char) ('a' + i);
+            half[i] = cnt[i] / 2;
+            halfLen += half[i];
         }
 
-        if (countWays(half, len) < k) {
-            return "";
-        }
+        long[][] C = buildComb(halfLen);
+
+        if (countWays(half, C) < k) return "";
 
         StringBuilder left = new StringBuilder();
 
-        for (int pos = 0; pos < len; pos++) {
-            for (int c = 0; c < 26; c++) {
-                if (half[c] == 0) continue;
+        for (int pos = 0; pos < halfLen; pos++) {
+            for (int ch = 0; ch < 26; ch++) {
+                if (half[ch] == 0) continue;
 
-                half[c]--;
-                long ways = countWays(half, len - pos - 1);
+                half[ch]--;
+                long ways = countWays(half, C);
 
                 if (ways >= k) {
-                    left.append((char) ('a' + c));
+                    left.append((char) ('a' + ch));
                     break;
                 } else {
                     k -= ways;
-                    half[c]++;
+                    half[ch]++;
                 }
             }
         }
 
         StringBuilder ans = new StringBuilder();
         ans.append(left);
-
-        if (mid != 0) ans.append(mid);
-
+        ans.append(mid);
         ans.append(new StringBuilder(left).reverse());
 
         return ans.toString();
     }
 
-    private long countWays(int[] cnt, int total) {
-        long res = 1;
+    private long[][] buildComb(int n) {
+        long[][] C = new long[n + 1][n + 1];
 
-        for (int i = 2; i <= total; i++) {
-            res = Math.min(LIMIT, res * i);
-        }
-
-        for (int x : cnt) {
-            for (int i = 2; i <= x; i++) {
-                res /= i;
+        for (int i = 0; i <= n; i++) {
+            C[i][0] = C[i][i] = 1;
+            for (int j = 1; j < i; j++) {
+                C[i][j] = Math.min(LIMIT, C[i - 1][j - 1] + C[i - 1][j]);
             }
         }
 
-        return Math.min(res, LIMIT);
+        return C;
+    }
+
+    private long countWays(int[] half, long[][] C) {
+        int remain = 0;
+        for (int x : half) remain += x;
+
+        long ans = 1;
+
+        for (int x : half) {
+            if (x > 0) {
+                ans = Math.min(LIMIT, ans * C[remain][x]);
+                remain -= x;
+            }
+        }
+
+        return ans;
     }
 }

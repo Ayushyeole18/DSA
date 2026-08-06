@@ -1,3 +1,5 @@
+//3345. Smallest Divisible Digit Product I
+
 class Solution {
     public int smallestNumber(int n, int t) {
         while (true) {
